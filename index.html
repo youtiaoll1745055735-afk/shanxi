@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企业画册</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: "Microsoft Yahei", sans-serif; 
+            background: #f5f5f5; 
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .page-nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .page-nav button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .page-nav button:hover { background: #0056b3; }
+        .page-container {
+            text-align: center;
+        }
+        .page-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+        }
+        .page-info {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>企业画册在线预览</h1>
+        <div class="page-nav">
+            <button onclick="prevPage()">上一页</button>
+            <button onclick="nextPage()">下一页</button>
+        </div>
+        <div class="page-container">
+            <img id="pageImg" src="1.webp" alt="画册第1页">
+            <div class="page-info">当前第 <span id="pageNum">1</span> 页，共 <span id="totalPage">40</span> 页</div>
+        </div>
+    </div>
+
+    <script>
+        // 画册总页数（根据你实际上传的页数修改）
+        const totalPage = 40;
+        let currentPage = 1;
+        const img = document.getElementById('pageImg');
+        const pageNum = document.getElementById('pageNum');
+
+        // 翻页函数
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePage();
+            }
+        }
+        function nextPage() {
+            if (currentPage < totalPage) {
+                currentPage++;
+                updatePage();
+            }
+        }
+        // 更新页面显示
+        function updatePage() {
+            img.src = `${currentPage}.webp`;
+            pageNum.textContent = currentPage;
+        }
+
+        // 键盘翻页（左右箭头）
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevPage();
+            if (e.key === 'ArrowRight') nextPage();
+        });
+    </script>
+</body>
+</html>
