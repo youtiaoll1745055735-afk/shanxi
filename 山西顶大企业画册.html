@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>山西顶大智能仓储设备有限公司 - 企业画册</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --accent: #c9a227;
+            --bg-dark: #1a1a2e;
+            --bg: #16213e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .header {
+            width: 100%;
+            background: linear-gradient(180deg, rgba(26, 54, 93, 0.95) 0%, rgba(26, 54, 93, 0.8) 100%);
+            padding: 10px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(201, 162, 39, 0.2);
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 1em;
+            font-weight: 500;
+            letter-spacing: 3px;
+        }
+
+        .header .subtitle {
+            color: var(--accent);
+            font-size: 0.65em;
+            margin-top: 3px;
+            letter-spacing: 5px;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            width: 100%;
+            min-height: 0;
+        }
+
+        /* 主容器 - 居中 */
+        .book-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 1400px;
+            padding: 0 10px;
+        }
+
+        /* 左右翻页箭头 */
+        .arrow-btn {
+            flex-shrink: 0;
+            width: 56px;
+            height: 56px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .arrow-btn:hover:not(:disabled) {
+            background: rgba(201, 162, 39, 0.35);
+            transform: scale(1.12);
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 30px rgba(201, 162, 39, 0.5);
+        }
+
+        .arrow-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .arrow-btn:disabled {
+            opacity: 0.15;
+            cursor: not-allowed;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: transparent;
+        }
+
+        .arrow-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: currentColor;
+        }
+
+        /* 书本容器 */
+        .book-container {
+            position: relative;
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            perspective: 2500px;
+        }
+
+        /* 左页（偶数页：2, 4, 6...） */
+        .left-page {
+            position: relative;
+            width: 45vw;
+            max-width: 550px;
+            aspect-ratio: 3/4;
+            background: #fff;
+            border-radius: 8px 0 0 8px;
+            overflow: hidden;
+            box-shadow: 
+                -5px 0 25px rgba(0, 0, 0, 0.3),
+                inset 5px 0 20px rgba(0, 0, 0, 0.1);
+            transform-origin: right center;
+            transform-style: preserve-3d;
+        }
+
+        .left-page img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #fafafa;
+        }
+
+        /* 书脊阴影 */
+        .spine-shadow-left {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 40px;
+            height: 100%;
+            background: linear-gradient(to left, 
+                rgba(0, 0, 0, 0.25) 0%,
+                transparent 100%);
+            pointer-events: none;
+        }
+
+        /* 右页（奇数页：1, 3, 5...） */
+        .right-page {
+            position: relative;
+            width: 45vw;
+            max-width: 550px;
+            aspect-ratio: 3/4;
+            background: #fff;
+            border-radius: 0 8px 8px 0;
+            overflow: hidden;
+            box-shadow: 
+                5px 0 25px rgba(0, 0, 0, 0.3),
+                inset -5px 0 20px rgba(0, 0, 0, 0.1);
+            transform-origin: left center;
+            transform-style: preserve-3d;
+        }
+
+        .right-page img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #fafafa;
+        }
+
+        .spine-shadow-right {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40px;
+            height: 100%;
+            background: linear-gradient(to right, 
+                rgba(0, 0, 0, 0.25) 0%,
+                transparent 100%);
+            pointer-events: none;
+        }
+
+        /* 翻页动画 - 从右往左翻 */
+        .right-page.flipping {
+            animation: flipLeft 0.35s ease-out forwards;
+        }
+
+        @keyframes flipLeft {
+            0% { transform: rotateY(0deg); opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { transform: rotateY(-90deg); opacity: 0; }
+        }
+
+        /* 翻页动画 - 从左往右翻（返回） */
+        .left-page.flipping-back {
+            animation: flipRight 0.35s ease-out forwards;
+        }
+
+        @keyframes flipRight {
+            0% { transform: rotateY(90deg); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: rotateY(0deg); opacity: 1; }
+        }
+
+        /* 单页模式（封面/封底） */
+        .single-page {
+            width: 45vw;
+            max-width: 550px;
+            aspect-ratio: 3/4;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.4);
+            margin: 0 auto;
+        }
+
+        .single-page img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #fafafa;
+        }
+
+        /* 底部控制区 */
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            padding: 10px 25px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .page-info {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95em;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .page-info .current {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 1.4em;
+        }
+
+        /* 进度条 */
+        .progress-container {
+            width: 90%;
+            max-width: 600px;
+            margin-top: 10px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #e8c547);
+            transition: width 0.4s ease;
+        }
+
+        /* 加载遮罩 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(201, 162, 39, 0.2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 20px;
+        }
+
+        .loading-progress {
+            color: var(--accent);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .hint {
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 0.7em;
+            margin-top: 10px;
+        }
+
+        /* 响应式 - 手机 */
+        @media (max-width: 768px) {
+            .header {
+                padding: 8px 15px;
+            }
+            
+            .header h1 {
+                font-size: 0.85em;
+            }
+
+            .arrow-btn {
+                width: 44px;
+                height: 44px;
+            }
+
+            .arrow-btn svg {
+                width: 22px;
+                height: 22px;
+            }
+
+            .book-wrapper {
+                gap: 10px;
+            }
+
+            .left-page, .right-page, .single-page {
+                width: 75vw;
+                max-width: 320px;
+            }
+
+            .spine-shadow-left, .spine-shadow-right {
+                width: 25px;
+            }
+
+            .controls {
+                margin-top: 10px;
+                padding: 8px 20px;
+            }
+
+            .page-info {
+                font-size: 0.85em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .left-page, .right-page, .single-page {
+                width: 85vw;
+                max-width: 280px;
+            }
+
+            .arrow-btn {
+                width: 38px;
+                height: 38px;
+            }
+
+            .arrow-btn svg {
+                width: 18px;
+                height: 18px;
+            }
+        }
+
+        /* 横屏手机 */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .header {
+                padding: 5px 15px;
+            }
+
+            .header h1 {
+                font-size: 0.75em;
+            }
+
+            .container {
+                padding: 5px;
+            }
+
+            .left-page, .right-page, .single-page {
+                width: auto;
+                max-width: none;
+                height: calc(100vh - 100px);
+                aspect-ratio: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在加载画册</div>
+        <div class="loading-progress" id="loadingProgress">0%</div>
+    </div>
+
+    <header class="header">
+        <h1>山西顶大智能仓储设备有限公司</h1>
+        <div class="subtitle">企业画册</div>
+    </header>
+
+    <div class="container">
+        <div class="book-wrapper">
+            <!-- 左侧翻页箭头 -->
+            <button class="arrow-btn" id="prevBtn" title="上一页">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                </svg>
+            </button>
+
+            <!-- 书本区域 -->
+            <div class="book-container" id="bookContainer">
+                <!-- 动态生成 -->
+            </div>
+
+            <!-- 右侧翻页箭头 -->
+            <button class="arrow-btn" id="nextBtn" title="下一页">
+                <svg viewBox="0 0 24 24">
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="controls">
+            <div class="page-info">
+                <span class="current" id="currentPage">1</span> / <span id="totalPages">40</span>
+            </div>
+        </div>
+
+        <div class="hint">点击左右箭头翻页 · 支持键盘方向键</div>
+    </div>
+
+    <script>
+        const images = [];
+        for (let i = 1; i <= 39; i++) images.push(`${i}.webp`);
+        images.push('40.jpg');
+
+        const totalPages = images.length;
+        let currentSpread = 0; // 当前展开的页码索引（从0开始）
+        let isAnimating = false;
+        let imageCache = [];
+
+        const bookContainer = document.getElementById('bookContainer');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingProgress = document.getElementById('loadingProgress');
+        const progressFill = document.getElementById('progressFill');
+        const currentPageEl = document.getElementById('currentPage');
+        const totalPagesEl = document.getElementById('totalPages');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        totalPagesEl.textContent = totalPages;
+
+        // 页面布局：
+        // spread 0: 封面（第1页单独）
+        // spread 1: 第2-3页
+        // spread 2: 第4-5页
+        // ...
+        // 最后：封底（第40页单独）
+        
+        function getSpreadCount() {
+            // 封面(1页) + 内容(38页=19对) + 封底(1页) = 21个spread
+            return 1 + Math.floor((totalPages - 2) / 2) + 1;
+        }
+
+        function getSpreadPages(spreadIndex) {
+            // 返回当前spread显示的页码（1-based）
+            if (spreadIndex === 0) {
+                // 封面
+                return { type: 'cover', pages: [1] };
+            } else if (spreadIndex === getSpreadCount() - 1) {
+                // 封底
+                return { type: 'back', pages: [totalPages] };
+            } else {
+                // 内容页：2-3, 4-5, 6-7...
+                const leftPage = spreadIndex * 2;
+                const rightPage = leftPage + 1;
+                return { type: 'content', pages: [leftPage, rightPage] };
+            }
+        }
+
+        // 预加载图片
+        function preloadImages() {
+            let loaded = 0;
+            images.forEach((src, index) => {
+                const img = new Image();
+                img.onload = () => {
+                    loaded++;
+                    imageCache[index] = img;
+                    loadingProgress.textContent = `${Math.round(loaded / totalPages * 100)}%`;
+                    if (loaded === totalPages) {
+                        setTimeout(() => {
+                            loadingOverlay.classList.add('hidden');
+                            renderSpread();
+                        }, 300);
+                    }
+                };
+                img.onerror = () => {
+                    loaded++;
+                    if (loaded === totalPages) {
+                        loadingOverlay.classList.add('hidden');
+                        renderSpread();
+                    }
+                };
+                img.src = src;
+            });
+        }
+
+        // 渲染当前展开页
+        function renderSpread() {
+            const spread = getSpreadPages(currentSpread);
+            bookContainer.innerHTML = '';
+
+            if (spread.type === 'cover' || spread.type === 'back') {
+                // 单页模式（封面或封底）
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'single-page';
+                const img = document.createElement('img');
+                img.src = images[spread.pages[0] - 1];
+                img.alt = spread.type === 'cover' ? '封面' : '封底';
+                img.draggable = false;
+                pageDiv.appendChild(img);
+                bookContainer.appendChild(pageDiv);
+            } else {
+                // 双页模式
+                // 左页（偶数页）
+                const leftDiv = document.createElement('div');
+                leftDiv.className = 'left-page';
+                leftDiv.id = 'leftPage';
+                const leftImg = document.createElement('img');
+                leftImg.src = images[spread.pages[0] - 1];
+                leftImg.alt = `第 ${spread.pages[0]} 页`;
+                leftImg.draggable = false;
+                leftDiv.appendChild(leftImg);
+                
+                const leftShadow = document.createElement('div');
+                leftShadow.className = 'spine-shadow-left';
+                leftDiv.appendChild(leftShadow);
+
+                // 右页（奇数页）
+                const rightDiv = document.createElement('div');
+                rightDiv.className = 'right-page';
+                rightDiv.id = 'rightPage';
+                const rightImg = document.createElement('img');
+                rightImg.src = images[spread.pages[1] - 1];
+                rightImg.alt = `第 ${spread.pages[1]} 页`;
+                rightImg.draggable = false;
+                rightDiv.appendChild(rightImg);
+                
+                const rightShadow = document.createElement('div');
+                rightShadow.className = 'spine-shadow-right';
+                rightDiv.appendChild(rightShadow);
+
+                bookContainer.appendChild(leftDiv);
+                bookContainer.appendChild(rightDiv);
+            }
+
+            updateUI();
+        }
+
+        // 下一页
+        function nextPage() {
+            if (isAnimating || currentSpread >= getSpreadCount() - 1) return;
+            isAnimating = true;
+
+            const spread = getSpreadPages(currentSpread);
+            
+            if (spread.type === 'content') {
+                // 双页模式：右页翻走
+                const rightPage = document.getElementById('rightPage');
+                if (rightPage) {
+                    rightPage.classList.add('flipping');
+                }
+            }
+
+            setTimeout(() => {
+                currentSpread++;
+                renderSpread();
+                isAnimating = false;
+            }, 180);
+        }
+
+        // 上一页
+        function prevPage() {
+            if (isAnimating || currentSpread <= 0) return;
+            isAnimating = true;
+
+            currentSpread--;
+            renderSpread();
+
+            setTimeout(() => {
+                isAnimating = false;
+            }, 180);
+        }
+
+        // 更新UI
+        function updateUI() {
+            const spread = getSpreadPages(currentSpread);
+            if (spread.pages.length === 1) {
+                currentPageEl.textContent = spread.pages[0];
+            } else {
+                currentPageEl.textContent = `${spread.pages[0]}-${spread.pages[1]}`;
+            }
+            
+            progressFill.style.width = `${((currentSpread + 1) / getSpreadCount()) * 100}%`;
+            prevBtn.disabled = currentSpread === 0;
+            nextBtn.disabled = currentSpread === getSpreadCount() - 1;
+        }
+
+        prevBtn.addEventListener('click', prevPage);
+        nextBtn.addEventListener('click', nextPage);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prevPage();
+            if (e.key === 'ArrowRight') nextPage();
+        });
+
+        // 触摸滑动
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 60) {
+                if (diff > 0) nextPage();
+                else prevPage();
+            }
+        }, { passive: true });
+
+        preloadImages();
+    </script>
+</body>
+</html>
